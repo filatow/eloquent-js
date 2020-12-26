@@ -151,5 +151,5 @@ function goalOrientedRobot({place, parcels}, route) {
 const roadGraph = buildGraph(roads);
 // runRobot(VillageState.random(), randomRobot);
 // runRobot(VillageState.random(), routeRobot, mailRoute);
-runRobot(VillageState.random(), goalOrientedRobot, []);
+// runRobot(VillageState.random(), goalOrientedRobot, []);
 
