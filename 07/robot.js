@@ -42,9 +42,9 @@ class VillageState {
     } else {
       let parcels = this.parcels.map(p => {
         if (p.place != this.place) {
-          return p;
+          return p; // не меняем местоположение посылки, т.к. робот ее еще не подобрал
         }
-        return {
+        return { // меняем местоположение посылки, т.к. робот уже подобрал посылку
           place: destination,
           address: p.address
         };
@@ -85,6 +85,35 @@ function randomPick(array) {
   return array[choice];
 }
 
+function findRoute(graph, from, to) {
+  /*  множество мест, которые должны быть исследованы в ближайшее время,
+  а также маршрут, который нас туда доставил */
+  let work = [
+    {  // начальная точка и пустой маршрут
+      at: from,
+      route: []
+    }
+  ];
+  for (let i = 0; i < work.length; i++) {
+    let {at, route} = work[i];
+    for (let place of graph[at]) {  // для каждого доступного узла из места 'at'
+      if (place == to) {  // если узел равен 'to' (место назначения)
+        return route.concat(place);  // возвращаем значение route + узел
+      }
+      /*  Если среди элементов рабочего списка нет элемента
+      со значением at = place (текущий узел)  */
+      if (!work.some(w => w.at == place)) {
+        work.push(  // тогда добавляем новый элемент в рабочий список 
+          {
+            at: place,  // текущий узел
+            route: route.concat(place)  // к текущему пути прибавляем значение текущего узла
+          }
+        );
+      }
+    }
+  }
+}
+
 function randomRobot(state) {
   return {
     direction: randomPick(roadGraph[state.place])
@@ -101,38 +130,15 @@ function routeRobot(state, memory) {
   }
 }
 
-function findRoute(graph, from, to) {
-  let work = [
-    {
-      at: from,
-      route: []
-    }
-  ];
-  for (let i = 0; i < work.length; i++) {
-    let {at, route} = work[i];
-    for (let place of graph[at]) {
-      if (place == to) {
-        return route.concat(place);
-      }
-      if (!work.some(w => w.at == place)) {
-        work.push(
-          {
-            at: place,
-            route: route.concat(place)
-          }
-        );
-      }
-    }
-  }
-}
-
-
 function goalOrientedRobot({place, parcels}, route) {
-  if (route.length == 0) {
-    let parcel = parcels[0];
+  if (route.length == 0) {  // если в параметр memory не передан маршрут
+    let parcel = parcels[0];  // берем первую посылку из списка
+    // если местонахождение посылки не совпадает с местонахождением бота
     if (parcel.place != place) {
+      // находим путь от местоположения бота, до местонахождения посылки
       route = findRoute(roadGraph, place, parcel.place);
     } else {
+      // иначе находим путь от местоположения бота, до адреса доставки посылки
       route = findRoute(roadGraph, place, parcel.address);
     }
   }
@@ -145,5 +151,5 @@ function goalOrientedRobot({place, parcels}, route) {
 const roadGraph = buildGraph(roads);
 // runRobot(VillageState.random(), randomRobot);
 // runRobot(VillageState.random(), routeRobot, mailRoute);
-runRobot(VillageState.random(), goalOrientedRobot, mailRoute);
+runRobot(VillageState.random(), goalOrientedRobot, []);
 
