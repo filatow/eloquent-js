@@ -42,6 +42,7 @@ function improvedRobot({place, parcels}, route) {
 }
 
 compareRobots(
-  [goalOrientedRobot, []],
+  [routeRobot, mailRoute],
+  // [goalOrientedRobot, []],
   [improvedRobot, []],
 );

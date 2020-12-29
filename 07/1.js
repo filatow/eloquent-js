@@ -18,8 +18,8 @@ function cloneDeep(target) {
 }
 
 function compareRobots(...robotPacks) {
-  const testCount = 1000;
-  const parcelsCount = 20;
+  const testCount = 10000;
+  const parcelsCount = 10;
   const results = [];
   for (let i = 0; i < testCount; i++) {
     const state = VillageState.random(parcelsCount);
